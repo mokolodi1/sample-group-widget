@@ -1,0 +1,200 @@
+<template name="componentContainer">
+  <div>
+    {{> loginButtons}}
+  </div>
+
+  <div style="height: 402px; width: 602px; border-width: 1px; border-style: solid; margin: 10px;">
+    <div class="panel">
+      {{! pass in name of Session variable}}
+      {{> sampleGroupSelector "currentSampleGroup"}}
+    </div>
+  </div>
+</template>
+
+<template name="sampleGroupSelector">
+  {{#if currentUser}}
+    <ul class="nav nav-tabs">
+      <li class="{{activeIfSelected "existing"}} sampleGroupSelector-existing" role="presentation">
+        <a href="#">Existing</a>
+      </li>
+      <li class="{{activeIfSelected "create"}} sampleGroupSelector-create" role="presentation">
+        <a href="#">Create</a>
+      </li>
+    </ul>
+
+    <div style="margin-top: 5px;">
+      {{#if compare selectedTab "existing"}}
+        {{> existingSampleGroups reactiveSampleGroup}}
+      {{/if}}
+
+      {{#if compare selectedTab "create"}}
+        {{> createSampleGroups reactiveSampleGroup}}
+      {{/if}}
+    </div>
+  {{else}}
+    {{#if loggingIn}}
+      <h1>Loading...</h1>
+    {{else}}
+      <h1>Log in to use this widget</h1>
+    {{/if}}
+  {{/if}}
+</template>
+
+<template name="existingSampleGroups">
+  {{#if Template.subscriptionsReady}}
+    {{#if length getSampleGroups}}
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="list-group" style="max-height: 500px; overflow-y: auto;">
+            {{#each getSampleGroups}}
+              <li class="list-group-item sampleGroupSelector-select-sample-group {{activeIfSelected}}">
+                <h4 class="list-group-item-heading">
+                  {{sample_group_label}}
+                  <small>v{{sample_group_version}}</small>
+                </h4>
+                <p class="list-group-item-text">
+                  {{fromNow date_created}}
+                </p>
+              </li>
+            {{/each}}
+          </div>
+        </div>
+
+        <div class="col-xs-6">
+          <div class="well">
+            Click on a sample group to select it.
+          </div>
+        </div>
+      </div>
+    {{else}}
+      <div class="well">
+        <p>
+          You have no sample groups available to you.
+        </p>
+        <p>
+          {{! NOTE: "click .sampleGroupSelector-create" handler
+              is in Template.sampleGroupSelector}}
+          <button type="button" class="btn btn-default sampleGroupSelector-create">
+            Create your first sample group
+          </button>
+        </p>
+      </div>
+    {{/if}}
+  {{else}}
+    <div style="position: relative; top: 33px;">
+      {{> spinner}}
+    </div>
+  {{/if}}
+</template>
+
+<template name="createSampleGroups">
+  <div class="row">
+    <div class="col-xs-6">
+      {{#if Template.subscriptionsReady}}
+        <div class="list-group" style="max-height: 282px; overflow-y: auto;">
+          {{#with get}}
+            {{#if length selected_studies}}
+              {{#each selected_studies}}
+                <li class="list-group-item sampleGroupSelector-select-study {{activeIfSelected @index}}"
+                    data-value={{@index}}>
+                  {{> studySummaryInteractive data=this index=@index}}
+                </li>
+              {{/each}}
+            {{else}}
+              <li class="list-group-item">
+                You have not added any studies to this sample group.
+              </li>
+            {{/if}}
+            <li class="list-group-item" style="padding: 0px;">
+              <div class="input-group">
+                <select id="sampleGroupSelector-choose-study" class="form-control">
+                  {{#each getStudies}}
+                    <option value={{id}}>{{short_name}}</option>
+                  {{/each}}
+                </select>
+                <span class="input-group-btn">
+                	<button id="sampleGroupSelector-add-study"
+                      class="btn btn-default" type="button">
+                    Add study
+                  </button>
+              	</span>
+              </div>
+            </li>
+          {{/with}}
+        </div>
+      {{else}}
+        <div style="position: relative; top: 33px;">
+          {{> spinner}}
+        </div>
+      {{/if}}
+    </div>
+
+    <div class="col-xs-6">
+      {{#if errorMessage}}
+        <div class="alert alert-danger" role="alert">
+          <button id="sampleGroupSelector-dismiss-error" type="button"
+              class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <strong>Error:</strong> {{errorMessage}}
+        </div>
+      {{else}}
+        {{#if isUndefined selectedStudyIndex}}
+          <div class="well">
+            Click on a study to add filters
+          </div>
+        {{else}}
+          <div class="well">
+            Adding filters is not yet possible.
+          </div>
+        {{/if}}
+      {{/if}}
+    </div>
+  </div>
+
+  {{> updateOrCreateForm}}
+</template>
+
+<template name="studySummaryInteractive">
+  {{#with data}}
+    {{studyShortName}}
+    <span class="pull-right">
+      {{#unless isUndefined total_samples_count}}
+        <small>({{filtered_samples_count}} of {{total_samples_count}})</small>
+      {{/unless}}
+      <button class="refresh-study btn btn-xs btn-info">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </button>
+      <button class="remove-study btn btn-xs btn-warning">
+        <span class="glyphicon glyphicon-trash"></span>
+      </button>
+    </span>
+  {{/with}}
+</template>
+
+<template name="updateOrCreateForm">
+  <form id="sampleGroupSelector-bottom-form" class="row">
+    <div class="form-group col-xs-2">
+      <select id="sampleGroupSelector-create-update" class="form-control" name="asdf">
+        <option value="update" selected={{selectedIf "update"}}>Update</option>
+        <option value="create" selected={{selectedIf "create"}}>Create</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-8">
+      {{#if compare updateOrCreate "update"}}
+        not ready
+      {{else}}
+        <div class="input-group">
+          <input id="sampleGroupSelector-name" type="text" class="form-control"
+              placeholder="Sample group name">
+          <span class="input-group-addon">v1</span>
+        </div>
+      {{/if}}
+    </div>
+    <div class="form-group col-xs-2">
+      <button type="submit" class="btn btn-default" style="width: 100%;">
+        Save
+      </button>
+    </div>
+  </form>
+</template>
