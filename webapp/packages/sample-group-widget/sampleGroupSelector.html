@@ -1,30 +1,32 @@
 <template name="sampleGroupSelector">
-  {{#if currentUser}}
-    <ul class="nav nav-tabs">
-      <li class="{{activeIfSelected "existing"}} sampleGroupSelector-existing" role="presentation">
-        <a href="#">Existing</a>
-      </li>
-      <li class="{{activeIfSelected "create"}} sampleGroupSelector-create" role="presentation">
-        <a href="#">Create</a>
-      </li>
-    </ul>
+  <div id=this>
+    {{#if currentUser}}
+      <ul class="nav nav-tabs">
+        <li class="{{activeIfSelected "existing"}} sampleGroupSelector-existing" role="presentation">
+          <a href="#">Existing</a>
+        </li>
+        <li class="{{activeIfSelected "create"}} sampleGroupSelector-create" role="presentation">
+          <a href="#">Create</a>
+        </li>
+      </ul>
 
-    <div style="margin-top: 5px;">
-      {{#if compare selectedTab "existing"}}
-        {{> existingSampleGroups reactiveSampleGroup}}
-      {{/if}}
+      <div style="margin-top: 5px;">
+        {{#if compare selectedTab "existing"}}
+          {{> existingSampleGroups reactiveSampleGroup}}
+        {{/if}}
 
-      {{#if compare selectedTab "create"}}
-        {{> createSampleGroups reactiveSampleGroup}}
-      {{/if}}
-    </div>
-  {{else}}
-    {{#if loggingIn}}
-      <h1>Loading...</h1>
+        {{#if compare selectedTab "create"}}
+          {{> createSampleGroups reactiveSampleGroup}}
+        {{/if}}
+      </div>
     {{else}}
-      <h1>Log in to use this widget</h1>
+      {{#if loggingIn}}
+        <h1>Loading...</h1>
+      {{else}}
+        <h1>Log in to use this widget</h1>
+      {{/if}}
     {{/if}}
-  {{/if}}
+  </div>
 </template>
 
 <template name="existingSampleGroups">
@@ -51,11 +53,11 @@
               <p>
                 Studies:
                 <ul>
-                  <li>
-                    {{#each selected_studies}}
+                  {{#each selected_studies}}
+                    <li>
                       {{study_label}}: {{filtered_samples_count}} of {{total_samples_count}}
-                    {{/each}}
-                  </li>
+                    </li>
+                  {{/each}}
                 </ul>
               </p>
             {{/with}}

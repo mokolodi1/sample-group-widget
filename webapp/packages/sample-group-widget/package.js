@@ -14,6 +14,7 @@ Package.onUse(function(api) {
   api.versionsFrom("1.1.0.3");
 
   api.use([
+    "medbook:namespace@0.0.2",
     "medbook:collaborations@2.3.4",
     "medbook:primary-collections@0.0.15",
     "mokolodi1:helpers@0.0.9",

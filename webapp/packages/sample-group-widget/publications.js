@@ -1,7 +1,7 @@
 // TODO: move to medbook:publish
 // reactive :)
 Meteor.publish("/sampleGroupSelector/studies", function () {
-  var user = findUser(this.userId);
+  var user = MedBook.findUser(this.userId);
   if (!user) {
     this.ready();
     return;
@@ -15,7 +15,7 @@ Meteor.publish("/sampleGroupSelector/studies", function () {
 });
 
 Meteor.publish("/sampleGroupSelector/sampleGroups", function () {
-  var user = findUser(this.userId);
+  var user = MedBook.findUser(this.userId);
   if (!user) {
     this.ready();
     return;

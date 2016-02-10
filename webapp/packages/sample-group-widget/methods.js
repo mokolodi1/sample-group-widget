@@ -1,6 +1,6 @@
 Meteor.methods({
   "/sampleGroupSelector/upsert": function (sampleGroup) {
-    var user = findUser(Meteor.userId());
+    var user = MedBook.findUser(Meteor.userId());
 
     // TODO: user security
 
@@ -49,7 +49,7 @@ Meteor.methods({
     }
 
     _.extend(sampleGroup, {
-      user_id: Meteor.userId(),
+      user_id: user._id,
       collaborations: [user.collaborations.personal],
       sample_group_version: sample_group_version,
       samples: samples,
