@@ -44,26 +44,39 @@
   {{#if Template.subscriptionsReady}}
     {{#if length getSampleGroups}}
       <div class="row">
-        <div class="col-xs-6">
+        <div class="col-xs-4">
           <div class="list-group" style="max-height: 500px; overflow-y: auto;">
             {{#each getSampleGroups}}
-              <li class="list-group-item sampleGroupSelector-select-sample-group {{activeIfSelected}}">
-                <h4 class="list-group-item-heading">
-                  {{sample_group_label}}
-                  <small>v{{sample_group_version}}</small>
-                </h4>
-                <p class="list-group-item-text">
-                  {{fromNow date_created}}
-                </p>
-              </li>
+              {{> listSampleGroup}}
             {{/each}}
           </div>
         </div>
 
-        <div class="col-xs-6">
-          <div class="well">
-            Click on a sample group to select it.
-          </div>
+        <div class="col-xs-8">
+          {{#if getSelected}}
+            {{#with getSelected}}
+              <p>
+                <b>{{sample_group_label}}</b> contains {{samples_count}} samples
+                from {{length selected_studies}}
+                {{#if multipleStudies}}different studies{{else}}study{{/if}}.
+              </p>
+
+              <p>
+                Studies:
+                <ul>
+                  <li>
+                    {{#each selected_studies}}
+                      {{study_label}}: {{filtered_samples_count}} of {{total_samples_count}}
+                    {{/each}}
+                  </li>
+                </ul>
+              </p>
+            {{/with}}
+          {{else}}
+            <div class="well">
+              Select a sample group to see more information.
+            </div>
+          {{/if}}
         </div>
       </div>
     {{else}}
@@ -87,6 +100,19 @@
   {{/if}}
 </template>
 
+<template name="listSampleGroup">
+  {{! NOTE: handler for *-select-sample-group is in Template.existingSampleGroups}}
+  <a  href="#" class="list-group-item sampleGroupSelector-select-sample-group {{activeIfSelected}}">
+    <h4 class="list-group-item-heading">
+      {{sample_group_label}}
+      <small>v{{sample_group_version}}</small>
+    </h4>
+    <p class="list-group-item-text">
+      {{fromNow date_created}}
+    </p>
+  </a>
+</template>
+
 <template name="createSampleGroups">
   <div class="row">
     <div class="col-xs-6">
@@ -95,10 +121,10 @@
           {{#with get}}
             {{#if length selected_studies}}
               {{#each selected_studies}}
-                <li class="list-group-item sampleGroupSelector-select-study {{activeIfSelected @index}}"
-                    data-value={{@index}}>
+                <a href="#" data-value={{@index}}
+                    class="list-group-item sampleGroupSelector-select-study {{activeIfSelected @index}}">
                   {{> studySummaryInteractive data=this index=@index}}
-                </li>
+                </a>
               {{/each}}
             {{else}}
               <li class="list-group-item">
@@ -164,9 +190,11 @@
       {{/unless}}
       <button class="refresh-study btn btn-xs btn-info">
         <span class="glyphicon glyphicon-refresh"></span>
+        <span class="sr-only">Refresh</span>
       </button>
       <button class="remove-study btn btn-xs btn-warning">
         <span class="glyphicon glyphicon-trash"></span>
+        <span class="sr-only">Delete</span>
       </button>
     </span>
   {{/with}}

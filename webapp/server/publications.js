@@ -1,7 +1,7 @@
 // TODO: move to medbook:publish
 // reactive :)
 Meteor.publish("/sampleGroupSelector/studies", function () {
-  var user = Meteor.users.findOne(this.userId);
+  var user = findUser(this.userId);
   if (!user) {
     this.ready();
     return;
@@ -9,13 +9,13 @@ Meteor.publish("/sampleGroupSelector/studies", function () {
 
   return Studies.find({
     collaborations: {
-      $in: user.profile.collaborations
+      $in: user.getCollaborations()
     }
   });
 });
 
 Meteor.publish("/sampleGroupSelector/sampleGroups", function () {
-  var user = Meteor.users.findOne(this.userId);
+  var user = findUser(this.userId);
   if (!user) {
     this.ready();
     return;
@@ -23,7 +23,7 @@ Meteor.publish("/sampleGroupSelector/sampleGroups", function () {
 
   return SampleGroups.find({
     collaborations: {
-      $in: user.profile.collaborations
+      $in: user.getCollaborations()
     }
   });
 });

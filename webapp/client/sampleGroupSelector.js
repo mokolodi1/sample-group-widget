@@ -72,10 +72,11 @@ Template.existingSampleGroups.helpers({
       }
     });
   },
-  activeIfSelected: function () {
-    if (this._id === Template.instance().selectedId.get()) {
-      return "active";
-    }
+  getSelected: function () {
+    return SampleGroups.findOne(Template.instance().selectedId.get());
+  },
+  multipleStudies: function () {
+    return this.selected_studies.length > 1;
   },
 });
 
@@ -83,6 +84,21 @@ Template.existingSampleGroups.events({
   "click .sampleGroupSelector-select-sample-group": function (event, instance) {
     instance.selectedId.set(this._id);
   },
+});
+
+// Template.listSampleGroup
+
+Template.listSampleGroup.helpers({
+  activeIfSelected: function () {
+    if (this._id === Template.instance().parent().selectedId.get()) {
+      return "active";
+    }
+  },
+  // disabled: function () {
+  //   if (this.user_id === Meteor.userId()) {
+  //
+  //   }
+  // },
 });
 
 // Template.createSampleGroups

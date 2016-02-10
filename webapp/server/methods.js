@@ -1,25 +1,8 @@
 Meteor.methods({
   "/sampleGroupSelector/upsert": function (sampleGroup) {
-    // // compose a schema containing some of the stuff in the SampleGroups schema
-    // var partialSchema = SampleGroups.simpleSchema().schema();
-    // _.each([
-    //   "collaborations",
-    //   "collaborations.$",
-    //   "date_created",
-    //   "description",
-    //   "sample_group_version",
-    //   "samples",
-    //   "samples.$",
-    //   "samples.$.patient_label",
-    //   "samples.$.sample_label",
-    //   "samples.$.study_label",
-    //   "samples_count",
-    //   "user_id",
-    // ], function (schemaAttribute) {
-    //   delete partialSchema[schemaAttribute];
-    // });
-    // console.log("partialSchema:", partialSchema);
-    // check(sampleGroup, new SimpleSchema(partialSchema));
+    var user = findUser(Meteor.userId());
+
+    // TODO: user security
 
     if (sampleGroup.sample_group_label.length === 0) {
       return new Meteor.Error("sample group name cannot be empty");
@@ -51,9 +34,9 @@ Meteor.methods({
     console.log("samples:", samples);
     samples.sort(function (first, second) {
       if (first.study_label === second.study_label) {
-        return first.sample_label < second.sample_label;
+        return first.sample_label > second.sample_label;
       }
-      return first.study_label < second.study_label;
+      return first.study_label > second.study_label;
     });
     console.log("verify samples sorted:", samples);
 
@@ -63,7 +46,7 @@ Meteor.methods({
 
     _.extend(sampleGroup, {
       user_id: Meteor.userId(),
-      collaborations: ["testing"], // XXX: nope
+      collaborations: [user.collaborations.personal],
       sample_group_version: sample_group_version,
       samples: samples,
     });
