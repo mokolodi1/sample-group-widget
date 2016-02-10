@@ -28,17 +28,21 @@ Meteor.methods({
     // do a _.uniq on objects: fun fun fun
     var samples = [];
     _.each(sampleGroup.selected_studies, function (selectedStudy) {
-      console.log("selectedStudy.filtered_samples:", selectedStudy.filtered_samples);
       samples = samples.concat(selectedStudy.filtered_samples);
     });
-    console.log("samples:", samples);
+
+    // sort the samples
     samples.sort(function (first, second) {
       if (first.study_label === second.study_label) {
         return first.sample_label > second.sample_label;
       }
       return first.study_label > second.study_label;
     });
-    console.log("verify samples sorted:", samples);
+
+    samples = _.uniq(samples, true, function (sample) {
+      // technically breakable but good enough for now :D
+      return sample.study_label + "$(#*@&)" + sample.sample_label;
+    });
 
     if (samples.length === 0) {
       return new Meteor.Error("cannot create a sample group with 0 samples");
@@ -50,8 +54,6 @@ Meteor.methods({
       sample_group_version: sample_group_version,
       samples: samples,
     });
-
-    console.log("sampleGroup:", sampleGroup);
 
     var newId = SampleGroups.insert(sampleGroup);
     return SampleGroups.findOne(newId);

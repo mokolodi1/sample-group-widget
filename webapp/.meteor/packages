@@ -4,11 +4,8 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-medbook:primary-collections
-sacha:spin
 accounts-password
 accounts-ui
-less
 kadira:flow-router
 kadira:blaze-layout
 standard-minifiers
@@ -26,9 +23,5 @@ ejson
 spacebars
 check
 arillo:flow-router-helpers
-twbs:bootstrap
-aldeed:autoform
-mokolodi1:helpers
 reactive-var
-aldeed:template-extension
-medbook:collaborations
+medbook:sample-group-widget
