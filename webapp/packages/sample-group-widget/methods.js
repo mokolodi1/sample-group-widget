@@ -1,8 +1,22 @@
-Meteor.methods({
-  "/sampleGroupSelector/upsert": function (sampleGroup) {
-    var user = MedBook.findUser(Meteor.userId());
+// TODO: update
+var selectedStudySchema = new SimpleSchema({
+  study_label: { type: String },
+  filters: {
+    type: [Object],
+    optional: true, // not present ==> include all samples in a study
+    blackbox: true, // XXX: scary but it's all right for now
+  },
+});
 
-    // TODO: user security
+Meteor.methods({
+  "/sampleGroupWidget/upsert": function (sampleGroup) {
+    check(sampleGroup, new SimpleSchema({
+      sample_group_label: { type: String },
+      selected_studies: { type: [selectedStudySchema] },
+    }));
+
+    // NOTE: won't get past here if user is invalid
+    var user = MedBook.findUser(Meteor.userId());
 
     if (sampleGroup.sample_group_label.length === 0) {
       return new Meteor.Error("sample group name cannot be empty");
@@ -20,7 +34,7 @@ Meteor.methods({
 
     // verify that all the selected studies are okay (security, update samples)
     _.each(sampleGroup.selected_studies, function (selectedStudy, index) {
-      var updatedCurrent = Meteor.call("/sampleGroupSelector/updateFilter",
+      var updatedCurrent = Meteor.call("/sampleGroupWidget/updateFilter",
           _.pick(selectedStudy, "study_label", "filters"));
       sampleGroup.selected_studies[index] = updatedCurrent;
     });
@@ -58,17 +72,15 @@ Meteor.methods({
     var newId = SampleGroups.insert(sampleGroup);
     return SampleGroups.findOne(newId);
   },
-  "/sampleGroupSelector/updateFilter": function (selectedStudy) {
+  "/sampleGroupWidget/updateFilter": function (selectedStudy) {
     // Takes a selectedStudy and applies filters. Returns full selectedStudy
 
-    check(selectedStudy, new SimpleSchema({
-      study_label: { type: String },
-      filters: {
-        type: [Object],
-        optional: true, // not present ==> include all samples in a study
-        blackbox: true, // XXX: scary but it's all right
-      },
-    }));
+    check(selectedStudy, selectedStudySchema);
+
+    // security
+    var user = MedBook.findUser(Meteor.userId());
+    var study = Studies.findOne({id: selectedStudy.study_label});
+    user.ensureAccess(study);
 
     // TODO: add filters
 
@@ -93,5 +105,14 @@ Meteor.methods({
       total_samples_count: total_samples_count,
       filtered_samples: filtered_samples,
     });
+  },
+  "/sampleGroupWidget/removeSampleGroup": function (sampleGroupId) {
+    check(sampleGroupId, String);
+
+    var user = MedBook.findUser(Meteor.userId());
+    var sampleGroup = SampleGroups.findOne(sampleGroupId);
+    user.ensureAccess(sampleGroup);
+
+    SampleGroups.remove(sampleGroupId);
   },
 });

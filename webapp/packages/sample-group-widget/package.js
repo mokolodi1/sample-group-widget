@@ -26,8 +26,8 @@ Package.onUse(function(api) {
   api.use("templating", "client");
 
   api.addFiles([
-    "sampleGroupSelector.html",
-    "sampleGroupSelector.js",
+    "sampleGroupWidget.html",
+    "sampleGroupWidget.js",
   ], "client");
 
   api.addFiles([

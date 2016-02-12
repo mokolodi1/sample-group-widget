@@ -1,6 +1,6 @@
-// Template.sampleGroupSelector
+// Template.sampleGroupWidget
 
-Template.sampleGroupSelector.onCreated(function () {
+Template.sampleGroupWidget.onCreated(function () {
   var instance = this;
 
   instance.selectedTab = new ReactiveVar("existing");
@@ -18,7 +18,7 @@ Template.sampleGroupSelector.onCreated(function () {
   });
 });
 
-Template.sampleGroupSelector.helpers({
+Template.sampleGroupWidget.helpers({
   selectedTab: function () {
     return Template.instance().selectedTab.get();
   },
@@ -32,21 +32,21 @@ Template.sampleGroupSelector.helpers({
   },
 });
 
-Template.sampleGroupSelector.events({
-  "click .sampleGroupSelector-existing": function (event, instance) {
+Template.sampleGroupWidget.events({
+  "click .sgw-existing": function (event, instance) {
     instance.selectedTab.set("existing");
   },
-  "click .sampleGroupSelector-create": function (event, instance) {
+  "click .sgw-create": function (event, instance) {
     instance.selectedTab.set("create");
   },
 });
 
-// Template.existingSampleGroups
+// Template.sgwExistingSampleGroups
 
-Template.existingSampleGroups.onCreated(function () {
+Template.sgwExistingSampleGroups.onCreated(function () {
   var instance = this;
 
-  instance.subscribe("/sampleGroupSelector/sampleGroups");
+  instance.subscribe("/sampleGroupWidget/sampleGroups");
 
   var selectedId = instance.data.get()._id;
   if (!selectedId) {
@@ -54,17 +54,21 @@ Template.existingSampleGroups.onCreated(function () {
   }
   instance.selectedId = new ReactiveVar(selectedId);
 
+  // keep track of if they've clicked delete so they don't accidentally delete
+  // anything
+  instance.deleteClicked = new ReactiveVar(false);
+
   instance.autorun(function () {
     instance.data.set(SampleGroups.findOne(instance.selectedId.get()));
   });
 });
 
-Template.existingSampleGroups.onDestroyed(function () {
+Template.sgwExistingSampleGroups.onDestroyed(function () {
   var instance = this;
   Session.set(instance.parent().data + "-selectedId", instance.selectedId.get());
 });
 
-Template.existingSampleGroups.helpers({
+Template.sgwExistingSampleGroups.helpers({
   getSampleGroups: function () {
     return SampleGroups.find({}, {
       sort: {
@@ -78,17 +82,35 @@ Template.existingSampleGroups.helpers({
   multipleStudies: function () {
     return this.selected_studies.length > 1;
   },
-});
-
-Template.existingSampleGroups.events({
-  "click .sampleGroupSelector-select-sample-group": function (event, instance) {
-    instance.selectedId.set(this._id);
+  deleteClicked: function () {
+    return Template.instance().deleteClicked.get();
   },
 });
 
-// Template.listSampleGroup
+Template.sgwExistingSampleGroups.events({
+  "click .sgw-select-sample-group": function (event, instance) {
+    instance.selectedId.set(this._id);
+  },
+  "click .sgw-remove-sample-group": function (event, instance) {
+    var deleteClicked = instance.deleteClicked;
+    if (deleteClicked.get()) {
+      Meteor.call("/sampleGroupWidget/removeSampleGroup", instance.selectedId.get());
+    } else {
+      deleteClicked.set(true);
 
-Template.listSampleGroup.helpers({
+      // wait until event propogation finishes before registering event
+      Meteor.defer(function () {
+        $("html").one("click",function() {
+          deleteClicked.set(false);
+        });
+      });
+    }
+  },
+});
+
+// Template.sgwListSampleGroup
+
+Template.sgwListSampleGroup.helpers({
   activeIfSelected: function () {
     if (this._id === Template.instance().parent().selectedId.get()) {
       return "active";
@@ -101,12 +123,12 @@ Template.listSampleGroup.helpers({
   // },
 });
 
-// Template.createSampleGroups
+// Template.sgwCreateSampleGroups
 
-Template.createSampleGroups.onCreated(function () {
+Template.sgwCreateSampleGroups.onCreated(function () {
   var instance = this;
 
-  instance.subscribe("/sampleGroupSelector/studies");
+  instance.subscribe("/sampleGroupWidget/studies");
 
   // the index of the study that's selected
   instance.selectedStudyIndex = new ReactiveVar(undefined);
@@ -124,7 +146,7 @@ Template.createSampleGroups.onCreated(function () {
   instance.data.set(savedSampleGroup);
 });
 
-Template.createSampleGroups.onDestroyed(function () {
+Template.sgwCreateSampleGroups.onDestroyed(function () {
   var instance = this;
 
   var creatingCached;
@@ -136,7 +158,7 @@ Template.createSampleGroups.onDestroyed(function () {
   Session.set(instance.parent().data + "-creating", creatingCached);
 });
 
-Template.createSampleGroups.helpers({
+Template.sgwCreateSampleGroups.helpers({
   getStudies: function () {
     return Studies.find({});
   },
@@ -153,19 +175,19 @@ Template.createSampleGroups.helpers({
   },
 });
 
-Template.createSampleGroups.events({
-  "click #sampleGroupSelector-add-study": function (event, instance) {
+Template.sgwCreateSampleGroups.events({
+  "click #sgw-add-study": function (event, instance) {
     var sampleGroup = instance.data.get();
     if (!sampleGroup.selected_studies) {
       sampleGroup.selected_studies = [];
     }
     sampleGroup.selected_studies.push({
-      study_label: instance.$("#sampleGroupSelector-choose-study").val()
+      study_label: instance.$("#sgw-choose-study").val()
     });
 
     instance.data.set(sampleGroup);
   },
-  "click .sampleGroupSelector-select-study": function (event, instance) {
+  "click .sgw-select-study": function (event, instance) {
     var dataValue = event.target.dataset.value;
 
     // if undefined, the DOM node has (likely) been removed because
@@ -175,20 +197,20 @@ Template.createSampleGroups.events({
       instance.selectedStudyIndex.set(index);
     }
   },
-  "click #sampleGroupSelector-dismiss-error": function (event, instance) {
+  "click #sgw-dismiss-error": function (event, instance) {
     instance.errorMessage.set(undefined);
   },
 });
 
-// Template.studySummaryInteractive
+// Template.sgwStudySummaryInteractive
 
-Template.studySummaryInteractive.helpers({
+Template.sgwStudySummaryInteractive.helpers({
   studyShortName: function () {
     return Studies.findOne({id: this.study_label}).short_name;
   },
 });
 
-Template.studySummaryInteractive.events({
+Template.sgwStudySummaryInteractive.events({
   "click .remove-study": function (event, instance) {
     var index = instance.data.index;
 
@@ -213,15 +235,15 @@ Template.studySummaryInteractive.events({
   }
 });
 
-// Template.updateOrCreateForm
+// Template.sgwUpdateOrCreateForm
 
-Template.updateOrCreateForm.onCreated(function () {
+Template.sgwUpdateOrCreateForm.onCreated(function () {
   var instance = this;
   // TODO: switch depending on if sample_group_label is set
   instance.updateOrCreate = new ReactiveVar("create");
 });
 
-Template.updateOrCreateForm.helpers({
+Template.sgwUpdateOrCreateForm.helpers({
   selectedIf: function (text) {
     if (Template.instance().updateOrCreate.get() === text) {
       return "selected";
@@ -232,17 +254,17 @@ Template.updateOrCreateForm.helpers({
   },
 });
 
-Template.updateOrCreateForm.events({
-  "change #sampleGroupSelector-create-update": function (event, instance) {
+Template.sgwUpdateOrCreateForm.events({
+  "change #sgw-create-update": function (event, instance) {
     instance.updateOrCreate.set(event.target.value);
   },
-  "submit #sampleGroupSelector-bottom-form": function (event, instance) {
+  "submit #sgw-bottom-form": function (event, instance) {
     event.preventDefault();
 
     console.log("instance:", instance);
     console.log("event.target:", event.target);
 
-    var sample_group_label = instance.$("#sampleGroupSelector-name").val();
+    var sample_group_label = instance.$("#sgw-name").val();
     console.log("sample_group_label:", sample_group_label);
 
     var sampleGroup = instance.parent().data.get();
@@ -250,7 +272,7 @@ Template.updateOrCreateForm.events({
       sample_group_label: sample_group_label
     });
 
-    Meteor.call("/sampleGroupSelector/upsert", sampleGroup, function (error, result) {
+    Meteor.call("/sampleGroupWidget/upsert", sampleGroup, function (error, result) {
       var errorMessage = instance.parent().errorMessage;
 
       if (error) {

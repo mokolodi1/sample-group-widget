@@ -1,6 +1,4 @@
-// TODO: move to medbook:publish
-// reactive :)
-Meteor.publish("/sampleGroupSelector/studies", function () {
+Meteor.publish("/sampleGroupWidget/studies", function () {
   var user = MedBook.findUser(this.userId);
   if (!user) {
     this.ready();
@@ -14,7 +12,7 @@ Meteor.publish("/sampleGroupSelector/studies", function () {
   });
 });
 
-Meteor.publish("/sampleGroupSelector/sampleGroups", function () {
+Meteor.publish("/sampleGroupWidget/sampleGroups", function () {
   var user = MedBook.findUser(this.userId);
   if (!user) {
     this.ready();

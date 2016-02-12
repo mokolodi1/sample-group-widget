@@ -1,22 +1,22 @@
-<template name="sampleGroupSelector">
+<template name="sampleGroupWidget">
   <div id=this>
     {{#if currentUser}}
       <ul class="nav nav-tabs">
-        <li class="{{activeIfSelected "existing"}} sampleGroupSelector-existing" role="presentation">
+        <li class="{{activeIfSelected "existing"}} sgw-existing" role="presentation">
           <a href="#">Existing</a>
         </li>
-        <li class="{{activeIfSelected "create"}} sampleGroupSelector-create" role="presentation">
+        <li class="{{activeIfSelected "create"}} sgw-create" role="presentation">
           <a href="#">Create</a>
         </li>
       </ul>
 
       <div style="margin-top: 5px;">
         {{#if compare selectedTab "existing"}}
-          {{> existingSampleGroups reactiveSampleGroup}}
+          {{> sgwExistingSampleGroups reactiveSampleGroup}}
         {{/if}}
 
         {{#if compare selectedTab "create"}}
-          {{> createSampleGroups reactiveSampleGroup}}
+          {{> sgwCreateSampleGroups reactiveSampleGroup}}
         {{/if}}
       </div>
     {{else}}
@@ -29,14 +29,14 @@
   </div>
 </template>
 
-<template name="existingSampleGroups">
+<template name="sgwExistingSampleGroups">
   {{#if Template.subscriptionsReady}}
     {{#if length getSampleGroups}}
       <div class="row">
         <div class="col-xs-4">
-          <div class="list-group" style="max-height: 500px; overflow-y: auto;">
+          <div class="list-group" style="max-height: 500px; overflow-y: auto; margin-bottom: 0px;">
             {{#each getSampleGroups}}
-              {{> listSampleGroup}}
+              {{> sgwListSampleGroup}}
             {{/each}}
           </div>
         </div>
@@ -44,11 +44,11 @@
         <div class="col-xs-8">
           {{#if getSelected}}
             {{#with getSelected}}
-              <p>
+              <h4>
                 <b>{{sample_group_label}}</b> contains {{samples_count}} samples
                 from {{length selected_studies}}
                 {{#if multipleStudies}}different studies{{else}}study{{/if}}.
-              </p>
+              </h4>
 
               <p>
                 Studies:
@@ -60,6 +60,22 @@
                   {{/each}}
                 </ul>
               </p>
+
+              <h5>
+                Actions:
+                <button type="button" class="btn btn-primary btn-sm">
+                  <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                  Share
+                </button>
+                <button type="button" class="sgw-remove-sample-group btn btn-danger btn-sm">
+                  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                  {{#if deleteClicked}}
+                    Really delete?
+                  {{else}}
+                    Delete
+                  {{/if}}
+                </button>
+              </h5>
             {{/with}}
           {{else}}
             <div class="well">
@@ -74,9 +90,9 @@
           You have no sample groups available to you.
         </p>
         <p>
-          {{! NOTE: "click .sampleGroupSelector-create" handler
-              is in Template.sampleGroupSelector}}
-          <button type="button" class="btn btn-default sampleGroupSelector-create">
+          {{! NOTE: "click .sgw-create" handler
+              is in Template.sampleGroupWidget}}
+          <button type="button" class="btn btn-default sgw-create">
             Create your first sample group
           </button>
         </p>
@@ -89,9 +105,9 @@
   {{/if}}
 </template>
 
-<template name="listSampleGroup">
-  {{! NOTE: handler for *-select-sample-group is in Template.existingSampleGroups}}
-  <a  href="#" class="list-group-item sampleGroupSelector-select-sample-group {{activeIfSelected}}">
+<template name="sgwListSampleGroup">
+  {{! NOTE: handler for *-select-sample-group is in Template.sgwExistingSampleGroups}}
+  <a  href="#" class="list-group-item sgw-select-sample-group {{activeIfSelected}}">
     <h4 class="list-group-item-heading">
       {{sample_group_label}}
       <small>v{{sample_group_version}}</small>
@@ -102,7 +118,7 @@
   </a>
 </template>
 
-<template name="createSampleGroups">
+<template name="sgwCreateSampleGroups">
   <div class="row">
     <div class="col-xs-6">
       {{#if Template.subscriptionsReady}}
@@ -111,8 +127,8 @@
             {{#if length selected_studies}}
               {{#each selected_studies}}
                 <a href="#" data-value={{@index}}
-                    class="list-group-item sampleGroupSelector-select-study {{activeIfSelected @index}}">
-                  {{> studySummaryInteractive data=this index=@index}}
+                    class="list-group-item sgw-select-study {{activeIfSelected @index}}">
+                  {{> sgwStudySummaryInteractive data=this index=@index}}
                 </a>
               {{/each}}
             {{else}}
@@ -122,13 +138,13 @@
             {{/if}}
             <li class="list-group-item" style="padding: 0px;">
               <div class="input-group">
-                <select id="sampleGroupSelector-choose-study" class="form-control">
+                <select id="sgw-choose-study" class="form-control">
                   {{#each getStudies}}
                     <option value={{id}}>{{short_name}}</option>
                   {{/each}}
                 </select>
                 <span class="input-group-btn">
-                	<button id="sampleGroupSelector-add-study"
+                	<button id="sgw-add-study"
                       class="btn btn-default" type="button">
                     Add study
                   </button>
@@ -147,7 +163,7 @@
     <div class="col-xs-6">
       {{#if errorMessage}}
         <div class="alert alert-danger" role="alert">
-          <button id="sampleGroupSelector-dismiss-error" type="button"
+          <button id="sgw-dismiss-error" type="button"
               class="close" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -167,10 +183,10 @@
     </div>
   </div>
 
-  {{> updateOrCreateForm}}
+  {{> sgwUpdateOrCreateForm}}
 </template>
 
-<template name="studySummaryInteractive">
+<template name="sgwStudySummaryInteractive">
   {{#with data}}
     {{studyShortName}}
     <span class="pull-right">
@@ -189,10 +205,10 @@
   {{/with}}
 </template>
 
-<template name="updateOrCreateForm">
-  <form id="sampleGroupSelector-bottom-form" class="row">
+<template name="sgwUpdateOrCreateForm">
+  <form id="sgw-bottom-form" class="row" style="margin-bottom: -15px;">
     <div class="form-group col-xs-2">
-      <select id="sampleGroupSelector-create-update" class="form-control" name="asdf">
+      <select id="sgw-create-update" class="form-control" name="asdf">
         <option value="update" selected={{selectedIf "update"}}>Update</option>
         <option value="create" selected={{selectedIf "create"}}>Create</option>
       </select>
@@ -202,7 +218,7 @@
         not ready
       {{else}}
         <div class="input-group">
-          <input id="sampleGroupSelector-name" type="text" class="form-control"
+          <input id="sgw-name" type="text" class="form-control"
               placeholder="Sample group name">
           <span class="input-group-addon">v1</span>
         </div>
