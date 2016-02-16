@@ -129,10 +129,10 @@
         <div class="list-group" style="max-height: 282px; overflow-y: auto;">
           {{#with get}}
             {{#if length selected_studies}}
-              {{#each selected_studies}}
-                <a href="#" data-value={{@index}}
-                    class="list-group-item sgw-select-study {{activeIfSelected @index}}">
-                  {{> sgwStudySummaryInteractive data=this index=@index}}
+              {{#each addIndex selected_studies}}
+                <a href="#" data-value={{index}}
+                    class="list-group-item sgw-select-study {{activeIfSelected index}}">
+                  {{> sgwStudySummaryInteractive data=value index=index}}
                 </a>
               {{/each}}
             {{else}}

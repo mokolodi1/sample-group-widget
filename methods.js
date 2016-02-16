@@ -68,7 +68,6 @@ Meteor.methods({
     }
 
     _.extend(sampleGroup, {
-      user_id: user._id,
       collaborations: [user.collaborations.personal],
       sample_group_version: sample_group_version,
       samples: samples,

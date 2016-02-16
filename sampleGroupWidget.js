@@ -183,6 +183,18 @@ Template.sgwCreateSampleGroups.helpers({
   errorMessage: function () {
     return Template.instance().errorMessage.get();
   },
+  addIndex: function (originalArray) {
+    if (!originalArray) {
+      originalArray = [];
+    }
+
+    return _.map(originalArray, function (value, index) {
+      return {
+        value: value,
+        index: index,
+      };
+    });
+  },
 });
 
 Template.sgwCreateSampleGroups.events({
