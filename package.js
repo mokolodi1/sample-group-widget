@@ -15,15 +15,15 @@ Package.onUse(function(api) {
 
   api.use([
     "medbook:namespace@0.0.2",
-    "medbook:collaborations@2.3.4",
-    "medbook:primary-collections@0.0.15",
-    "mokolodi1:helpers@0.0.9",
+    "medbook:primary-collections@0.0.16",
+    "medbook:collaborations@2.3.7",
+    "mokolodi1:helpers@0.0.10",
     "sacha:spin@2.3.1",
     "twbs:bootstrap@3.3.6",
-    "aldeed:template-extension@4.0.0",
+    "aldeed:template-extension@3.4.3 || 4.0.0",
     "aldeed:simple-schema@1.3.3",
   ]);
-  api.use("templating", "client");
+  api.use("templating@1.1.1", "client");
 
   api.addFiles([
     "sampleGroupWidget.html",
@@ -37,8 +37,5 @@ Package.onUse(function(api) {
 });
 
 Package.onTest(function(api) {
-  api.use('ecmascript');
-  api.use('tinytest');
-  api.use('medbook:sample-group-widget');
-  api.addFiles('sample-groups-tests.js');
+
 });
