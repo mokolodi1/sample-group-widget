@@ -1,9 +1,5 @@
 Meteor.publish("/sampleGroupWidget/studies", function () {
-  var user = MedBook.findUser(this.userId);
-  if (!user) {
-    this.ready();
-    return;
-  }
+  var user = MedBook.ensureUser(this.userId);
 
   return Studies.find({
     collaborations: {
@@ -13,11 +9,7 @@ Meteor.publish("/sampleGroupWidget/studies", function () {
 });
 
 Meteor.publish("/sampleGroupWidget/sampleGroups", function () {
-  var user = MedBook.findUser(this.userId);
-  if (!user) {
-    this.ready();
-    return;
-  }
+  var user = MedBook.ensureUser(this.userId);
 
   return SampleGroups.find({
     collaborations: {

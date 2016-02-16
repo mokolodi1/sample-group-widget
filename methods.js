@@ -1,6 +1,12 @@
-// TODO: update
 var selectedStudySchema = new SimpleSchema({
   study_label: { type: String },
+  total_samples_count: { type: Number, optional: true },
+  filtered_samples: { // I'll check this later
+    type: [Object],
+    blackbox: true,
+    optional: true
+  },
+  filtered_samples_count: { type: Number, optional: true },
   filters: {
     type: [Object],
     optional: true, // not present ==> include all samples in a study
@@ -15,8 +21,7 @@ Meteor.methods({
       selected_studies: { type: [selectedStudySchema] },
     }));
 
-    // NOTE: won't get past here if user is invalid
-    var user = MedBook.findUser(Meteor.userId());
+    var user = MedBook.ensureUser(Meteor.userId());
 
     if (sampleGroup.sample_group_label.length === 0) {
       return new Meteor.Error("sample group name cannot be empty");
@@ -77,8 +82,7 @@ Meteor.methods({
 
     check(selectedStudy, selectedStudySchema);
 
-    // security
-    var user = MedBook.findUser(Meteor.userId());
+    var user = MedBook.ensureUser(Meteor.userId());
     var study = Studies.findOne({id: selectedStudy.study_label});
     user.ensureAccess(study);
 
@@ -109,7 +113,7 @@ Meteor.methods({
   "/sampleGroupWidget/removeSampleGroup": function (sampleGroupId) {
     check(sampleGroupId, String);
 
-    var user = MedBook.findUser(Meteor.userId());
+    var user = MedBook.ensureUser(Meteor.userId());
     var sampleGroup = SampleGroups.findOne(sampleGroupId);
     user.ensureAccess(sampleGroup);
 

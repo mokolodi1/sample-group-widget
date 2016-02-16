@@ -3,6 +3,9 @@
 Template.sampleGroupWidget.onCreated(function () {
   var instance = this;
 
+  // doesn't need to be reactive
+  instance.shareModalId = instance.data + "-share-modal";
+  // existing tab is the default
   instance.selectedTab = new ReactiveVar("existing");
 
   // set the reactiveSampleGroup to whatever was in the Session variable before
@@ -88,10 +91,17 @@ Template.sgwExistingSampleGroups.helpers({
 });
 
 Template.sgwExistingSampleGroups.events({
-  "click .sgw-select-sample-group": function (event, instance) {
+  "click .sgw-select-sg": function (event, instance) {
     instance.selectedId.set(this._id);
   },
-  "click .sgw-remove-sample-group": function (event, instance) {
+  "click .sgw-share-sg": function (event, instance) {
+    MedBook.editCollaborations("SampleGroups", instance.selectedId.get());
+  },
+  "click .sgw-update-sg": function (event, instance) {
+    Session.set(instance.parent().data + "-creating", instance.data.get());
+    instance.parent().selectedTab.set("create");
+  },
+  "click .sgw-remove-sg": function (event, instance) {
     var deleteClicked = instance.deleteClicked;
     if (deleteClicked.get()) {
       Meteor.call("/sampleGroupWidget/removeSampleGroup", instance.selectedId.get());
