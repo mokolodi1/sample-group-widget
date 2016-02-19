@@ -82,7 +82,7 @@ Meteor.methods({
     check(selectedStudy, selectedStudySchema);
 
     var user = MedBook.ensureUser(Meteor.userId());
-    var study = Studies.findOne({id: selectedStudy.study_label});
+    var study = Studies.findOne({study_label: selectedStudy.study_label});
     user.ensureAccess(study);
 
     // TODO: add filters

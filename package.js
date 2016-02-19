@@ -15,8 +15,8 @@ Package.onUse(function(api) {
 
   api.use([
     "medbook:namespace@0.0.2",
-    "medbook:primary-collections@0.0.16",
-    "medbook:collaborations@2.3.9",
+    "medbook:primary-collections@0.0.17",
+    "medbook:collaborations@2.3.11",
     "mokolodi1:helpers@0.0.10",
     "sacha:spin@2.3.1",
     "twbs:bootstrap@3.3.6",

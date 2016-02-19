@@ -228,7 +228,7 @@ Template.sgwCreateSampleGroups.events({
 
 Template.sgwStudySummaryInteractive.helpers({
   studyShortName: function () {
-    return Studies.findOne({id: this.study_label}).short_name;
+    return Studies.findOne({study_label: this.study_label}).short_name;
   },
 });
 
